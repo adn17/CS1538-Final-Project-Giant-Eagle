@@ -1,5 +1,5 @@
 import simpy
-from scipy import stats
+import numpy
 
 
 class Customer:
