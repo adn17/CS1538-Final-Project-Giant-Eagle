@@ -1,0 +1,20 @@
+Eli added these things:
+
+Sim.py
+	-added this whole file. main driver program for the sim, includes a method for generating customers
+	+To-Do: Make it so that it accepts command-line args (all the variables for number of kiosks and stuff are currently 0)
+
+Cashier.py and Self_Checkout.py
+	-added Simpy Resource and boolean "occupied" as instance variables
+
+Customer.py
+	-added Array of Cashiers, Self-Checkouts, and an ID number as instance variables (Generated in the driver program)
+	-added some comments and a run() method that picks a cashier or self-checkout kiosk, requests the resource and waits accordingly
+	+To-Do: decide_destination() and checkout() need to be implemented, couple of small things that I marked with TODO
+	
+TO-DD IN GENERAL:
+	+None of the stuff i've written so far includes any random draws based on our data: that still needs to be done.
+	+I added the data that I got from the Giant Eagle about cashier speeds to the Google Doc we were working on
+	+I was trying to find a distribution to fit our collected data and our stuff was WAY more variable than any of the basic distributions I tried- makes me think we need more data (as much as I hate to say it).
+	
+	
