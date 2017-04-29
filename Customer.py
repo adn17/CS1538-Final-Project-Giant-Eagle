@@ -3,7 +3,7 @@ from scipy import stats
 
 
 class Customer:
-    def __init__(self, env, items, speed, cashiers, self_checks, id_num):
+    def __init__(self, env, items, speed, cashiers, self_checks, id_num, result_file):
         self.env = env
         self.items = items
         self.speed = speed
@@ -11,6 +11,7 @@ class Customer:
         self.Cashiers = cashiers
         self.Self_Checkouts = self_checks
         self.ID = id_num
+        self.Results = result_file
 
         self.employee_involved = False
         self.kiosk_index = -1
@@ -45,7 +46,7 @@ class Customer:
         elif self.destination == "self":
             yield self.env.timeout(self.speed * self.items)
             if self.employee_involved:
-                yield self.env.timeout(15)
+                yield self.env.timeout(15)          # Approx. 15 second delay if Employee is involved
 
     def run(self):
         if self.destination == "cashier":
@@ -57,11 +58,13 @@ class Customer:
             if self.kiosk_index < 0:                     # ...if none are open, pick at random
                 self.kiosk_index = stats.randint.rvs(0, len(self.Self_Checkouts))
 
-            self.timeArrivedAtLine = self.env.now                             # ?????
+            self.timeArrivedAtLine = self.env.now
             with self.Cashiers[self.kiosk_index].resource.request() as req:
-                self.timeBeginCheckout = self.env.now                         # ?????
+                self.Cashiers[self.kiosk_index].occupied = True
+                self.timeBeginCheckout = self.env.now
                 print("Customer", str(self.ID), "checking out at cashier", str(self.kiosk_index) + "\n")
                 yield self.env.process(self.checkout())
+                self.Cashiers[self.kiosk_index].occupied = False
                 yield req
                 self.timeFinished = self.env.now
 
@@ -74,12 +77,18 @@ class Customer:
             if self.kiosk_index < 0:
                 self.kiosk_index = stats.randint.rvs(0, len(self.Self_Checkouts))
 
-            self.timeArrivedAtLine = self.env.now                             # ?????
-            with self.Cashiers[self.kiosk_index].resource.request() as req:
-                self.timeBeginCheckout = self.env.now                         # ?????
+            self.timeArrivedAtLine = self.env.now
+            with self.Self_Checkouts[self.kiosk_index].resource.request() as req:
+                self.Self_Checkouts[self.kiosk_index].occupied = True
+                self.timeBeginCheckout = self.env.now
                 print("Customer", str(self.ID), "checking out at self-check", str(self.kiosk_index)+ "\n")
                 yield self.env.process(self.checkout())
+                self.Self_Checkouts[self.kiosk_index].occupied = False
                 yield req
             self.timeFinished = self.env.now
 
         print("Customer", self.ID, "Start:" + str(self.timeBeginCheckout) + "End:" + str(self.timeFinished))
+        time_in_line = self.timeBeginCheckout - self.timeArrivedAtLine
+        service_time = self.timeFinished - self.timeBeginCheckout
+        self.Results.write(str(self.ID) + "," + str(self.items) + "," + self.destination + "," + str(self.kiosk_index)
+                           + "," + str(time_in_line) + "," + str(service_time) + "," + str(self.employee_involved) + "\n")
