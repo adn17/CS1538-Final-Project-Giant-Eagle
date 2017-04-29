@@ -1,0 +1,6 @@
+The Simulation is done! 
+
+To run: "python Sim.py [num_cashiers] [num_self_checkouts]"
+
+Results are generated in "Results.csv"
+	

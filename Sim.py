@@ -4,11 +4,22 @@ from scipy import stats
 import Customer, cashier, self_checkout
 
 
+# Items are distributed bimodally; people are equally likely to come in for just a few things (~<10) as for many (~<35)
+def generate_items():
+    if stats.binom.rvs(1, .5) == 1:
+        items = round(stats.norm.rvs(loc=24, scale=5.56), 0)
+    else:
+        items = stats.norm.rvs(loc=4.2, scale=2.5)
+        if items < 1:
+            items = 1
+    return items
+
+
 def generate_customers(env):
     customer_id = 0
     while Env.now < sim_seconds:
-        customer_items = 10      # TODO Change to random draw based on data
-        customer_speed = 5      # TODO Change to random draw based on data
+        customer_items = generate_items()
+        customer_speed = stats.expon.rvs(loc=15, scale=20.4)
         new_customer = Customer.Customer(Env, customer_items, customer_speed,
                                          Cashiers, Self_Checkouts, customer_id, File)
         new_customer.decide_destination()
@@ -28,7 +39,7 @@ sim_hrs = 12
 sim_seconds = sim_hrs * 3600
 
 File = open("Results.csv", "w")
-File.write("Customer ID,Number of Items,Kiosk Type,Kiosk Number,Time In Line,Time to Checkout,Employee Involved?\n")    # Top Row
+File.write("Customer ID,Number of Items,Kiosk Type,Kiosk Number,Time In Line,Time to Checkout,Employee Involved?\n")
 
 Cashiers = []
 Self_Checkouts = []
@@ -36,7 +47,7 @@ Self_Checkouts = []
 Env = simpy.Environment()
 # Create the Environment
 for i in range(num_cashiers):
-    Cashiers.append(cashier.Cashier(env=Env, speed=2))  # TODO Change speed to random data based draw
+    Cashiers.append(cashier.Cashier(env=Env, speed=stats.expon.rvs(loc=.2, scale=.1)))
 
 # Generate Resource Objects
 
