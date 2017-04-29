@@ -1,0 +1,10 @@
+The Simulation is (I think) done besides these few things:
+
++ Fit data to distributions
++ Add Random Draws
++ Add a way of storing results for each customer 
+
+- Remove the test-type print statements
+	
+****Also I added an updated version of the giant eagle data we collected, with histograms and calculations
+	
