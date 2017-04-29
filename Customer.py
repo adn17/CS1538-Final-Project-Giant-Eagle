@@ -22,6 +22,13 @@ class Customer:
         # print("CUSTOMER " + str(self.ID) + "\n", str(self.items), str(self.speed), str(len(self.Cashiers)), str(len(self.Self_Checkouts))+"\n")
 
     def decide_destination(self):
+        if len(self.Cashiers) is 0:
+            self.destination = "self"
+            return
+        elif len(self.Self_Checkouts) is 0:
+            self.destination = "cashier"
+            return
+
         if self.items > 20:
             self.destination = "cashier"
         elif self.items < 5:
@@ -56,7 +63,7 @@ class Customer:
                     self.kiosk_index = i
                     break
             if self.kiosk_index < 0:                     # ...if none are open, pick at random
-                self.kiosk_index = stats.randint.rvs(0, len(self.Self_Checkouts))
+                self.kiosk_index = stats.randint.rvs(0, len(self.Cashiers))
 
             with self.Cashiers[self.kiosk_index].resource.request() as req:
                 yield req
@@ -74,7 +81,6 @@ class Customer:
                     break
             if self.kiosk_index < 0:
                 self.kiosk_index = stats.randint.rvs(0, len(self.Self_Checkouts))
-
             with self.Self_Checkouts[self.kiosk_index].resource.request() as req:
                 yield req
                 self.Self_Checkouts[self.kiosk_index].occupied = True

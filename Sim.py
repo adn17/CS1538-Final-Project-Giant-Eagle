@@ -31,12 +31,13 @@ def generate_customers(env):
 parser = argparse.ArgumentParser()
 parser.add_argument("Cashiers", type=int, help="Number of Cashiers")
 parser.add_argument("SelfCheckouts", type=int, help="Number of Self-Checkouts")
+parser.add_argument("-Days", type=int, help="Number of (10-hour) days to run", default=1, required=False)
 
 args = parser.parse_args()
 
 num_cashiers = args.Cashiers
 num_self_checkouts = args.SelfCheckouts
-sim_hrs = 10
+sim_hrs = 10 * args.Days
 sim_seconds = sim_hrs * 3600
 
 numpy.random.seed(1234)
