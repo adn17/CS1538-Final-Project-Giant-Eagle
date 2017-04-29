@@ -1,4 +1,5 @@
 import argparse
+import numpy
 import simpy
 from scipy import stats
 import Customer, cashier, self_checkout
@@ -7,12 +8,12 @@ import Customer, cashier, self_checkout
 # Items are distributed bimodally; people are equally likely to come in for just a few things (~<10) as for many (~<35)
 def generate_items():
     if stats.binom.rvs(1, .5) == 1:
-        items = round(stats.norm.rvs(loc=24, scale=5.56), 0)
+        items = stats.norm.rvs(loc=24, scale=5.56)
     else:
         items = stats.norm.rvs(loc=4.2, scale=2.5)
         if items < 1:
             items = 1
-    return items
+    return round(items, 0)
 
 
 def generate_customers(env):
@@ -35,8 +36,10 @@ args = parser.parse_args()
 
 num_cashiers = args.Cashiers
 num_self_checkouts = args.SelfCheckouts
-sim_hrs = 12
+sim_hrs = 10
 sim_seconds = sim_hrs * 3600
+
+numpy.random.seed(1234)
 
 File = open("Results.csv", "w")
 File.write("Customer ID,Number of Items,Kiosk Type,Kiosk Number,Time In Line,Time to Checkout,Employee Involved?\n")
@@ -47,7 +50,7 @@ Self_Checkouts = []
 Env = simpy.Environment()
 # Create the Environment
 for i in range(num_cashiers):
-    Cashiers.append(cashier.Cashier(env=Env, speed=stats.expon.rvs(loc=.2, scale=.1)))
+    Cashiers.append(cashier.Cashier(env=Env, speed=stats.expon.rvs(loc=15, scale=5.2)))
 
 # Generate Resource Objects
 

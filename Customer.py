@@ -42,50 +42,47 @@ class Customer:
     # Once a resource is obtained, Customer calls this to wait
     def checkout(self):
         if self.destination == "cashier":
-            yield self.env.timeout(self.Cashiers[self.kiosk_index].speed * self.items)
+            yield self.env.timeout((self.items / self.Cashiers[self.kiosk_index].speed) * 60)
         elif self.destination == "self":
             yield self.env.timeout(self.speed * self.items)
             if self.employee_involved:
                 yield self.env.timeout(15)          # Approx. 15 second delay if Employee is involved
 
     def run(self):
+        self.timeArrivedAtLine = self.env.now   # Customers immediately queue in a line
         if self.destination == "cashier":
             for i in range(len(self.Cashiers)):     # look for an open kiosk...
                 if not self.Cashiers[i].occupied:   # ...if one is found, go there...
                     self.kiosk_index = i
                     break
-            # TODO: Maybe change this to pick shortest line?
             if self.kiosk_index < 0:                     # ...if none are open, pick at random
                 self.kiosk_index = stats.randint.rvs(0, len(self.Self_Checkouts))
 
-            self.timeArrivedAtLine = self.env.now
             with self.Cashiers[self.kiosk_index].resource.request() as req:
-                self.Cashiers[self.kiosk_index].occupied = True
+                yield req
                 self.timeBeginCheckout = self.env.now
+                self.Cashiers[self.kiosk_index].occupied = True
                 # print("Customer", str(self.ID), "checking out at cashier", str(self.kiosk_index) + "\n")
                 yield self.env.process(self.checkout())
-                self.Cashiers[self.kiosk_index].occupied = False
-                yield req
                 self.timeFinished = self.env.now
+                self.Cashiers[self.kiosk_index].occupied = False
 
         elif self.destination == "self":
             for i in range(len(self.Self_Checkouts)):
                 if not self.Self_Checkouts[i].occupied:
                     self.kiosk_index = i
                     break
-            # TODO: Maybe change this to pick shortest line?
             if self.kiosk_index < 0:
                 self.kiosk_index = stats.randint.rvs(0, len(self.Self_Checkouts))
 
-            self.timeArrivedAtLine = self.env.now
             with self.Self_Checkouts[self.kiosk_index].resource.request() as req:
+                yield req
                 self.Self_Checkouts[self.kiosk_index].occupied = True
                 self.timeBeginCheckout = self.env.now
                 # print("Customer", str(self.ID), "checking out at self-check", str(self.kiosk_index)+ "\n")
                 yield self.env.process(self.checkout())
+                self.timeFinished = self.env.now
                 self.Self_Checkouts[self.kiosk_index].occupied = False
-                yield req
-            self.timeFinished = self.env.now
 
         # print("Customer", self.ID, "Start:" + str(self.timeBeginCheckout) + "End:" + str(self.timeFinished))
         time_in_line = self.timeBeginCheckout - self.timeArrivedAtLine
