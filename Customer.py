@@ -22,22 +22,26 @@ class Customer:
         # print("CUSTOMER " + str(self.ID) + "\n", str(self.items), str(self.speed), str(len(self.Cashiers)), str(len(self.Self_Checkouts))+"\n")
 
     def decide_destination(self):
+
         if len(self.Cashiers) is 0:
             self.destination = "self"
+            if stats.binom.rvs(n=1, p=.4) == 1:         # 40% of self checkouts involve employee intervention
+                self.employee_involved = True
             return
         elif len(self.Self_Checkouts) is 0:
             self.destination = "cashier"
             return
 
-        if self.items > 20:
-            self.destination = "cashier"
-        elif self.items < 5:
-            self.destination = "self"
         else:
             if stats.binom.rvs(n=1, p=.25) == 1:        # 25% of people use self checkout
                 self.destination = "self"
             else:
                 self.destination = "cashier"
+
+        if self.items > 20:
+            self.destination = "cashier"
+        elif self.items < 5:
+            self.destination = "self"
 
         if self.destination == "self":
             if stats.binom.rvs(n=1, p=.4) == 1:         # 40% of self checkouts involve employee intervention

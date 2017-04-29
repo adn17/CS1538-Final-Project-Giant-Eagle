@@ -40,7 +40,7 @@ num_self_checkouts = args.SelfCheckouts
 sim_hrs = 10 * args.Days
 sim_seconds = sim_hrs * 3600
 
-numpy.random.seed(1234)
+numpy.random.seed(4321)
 
 File = open("Results.csv", "w")
 File.write("Customer ID,Number of Items,Kiosk Type,Kiosk Number,Time In Line,Time to Checkout,Employee Involved?\n")
