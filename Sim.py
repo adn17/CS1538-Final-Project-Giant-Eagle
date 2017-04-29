@@ -20,7 +20,7 @@ def generate_customers(env):
     customer_id = 0
     while Env.now < sim_seconds:
         customer_items = generate_items()
-        customer_speed = stats.expon.rvs(loc=15, scale=20.4)
+        customer_speed = stats.expon.rvs(loc=15, scale=15)
         new_customer = Customer.Customer(Env, customer_items, customer_speed,
                                          Cashiers, Self_Checkouts, customer_id, File)
         new_customer.decide_destination()
@@ -51,7 +51,7 @@ Self_Checkouts = []
 Env = simpy.Environment()
 # Create the Environment
 for i in range(num_cashiers):
-    Cashiers.append(cashier.Cashier(env=Env, speed=stats.expon.rvs(loc=15, scale=5.2)))
+    Cashiers.append(cashier.Cashier(env=Env, speed=stats.expon.rvs(loc=12, scale=5.2)))
 
 # Generate Resource Objects
 

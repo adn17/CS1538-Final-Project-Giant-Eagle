@@ -19,8 +19,6 @@ class Customer:
         self.timeBeginCheckout = 0.0
         self.timeFinished = 0.0
 
-        # print("CUSTOMER " + str(self.ID) + "\n", str(self.items), str(self.speed), str(len(self.Cashiers)), str(len(self.Self_Checkouts))+"\n")
-
     def decide_destination(self):
 
         if len(self.Cashiers) is 0:
@@ -47,9 +45,7 @@ class Customer:
             if stats.binom.rvs(n=1, p=.4) == 1:         # 40% of self checkouts involve employee intervention
                 self.employee_involved = True
 
-        # print("Customer", str(self.ID), "going to", str(self.destination) + "\n")
-
-    # NOTE: Requesting the resource for a register is not done here (or will not be done here):
+    # NOTE: Requesting the resource for a register is not done here:
     # Once a resource is obtained, Customer calls this to wait
     def checkout(self):
         if self.destination == "cashier":
@@ -73,7 +69,6 @@ class Customer:
                 yield req
                 self.timeBeginCheckout = self.env.now
                 self.Cashiers[self.kiosk_index].occupied = True
-                # print("Customer", str(self.ID), "checking out at cashier", str(self.kiosk_index) + "\n")
                 yield self.env.process(self.checkout())
                 self.timeFinished = self.env.now
                 self.Cashiers[self.kiosk_index].occupied = False
@@ -89,12 +84,10 @@ class Customer:
                 yield req
                 self.Self_Checkouts[self.kiosk_index].occupied = True
                 self.timeBeginCheckout = self.env.now
-                # print("Customer", str(self.ID), "checking out at self-check", str(self.kiosk_index)+ "\n")
                 yield self.env.process(self.checkout())
                 self.timeFinished = self.env.now
                 self.Self_Checkouts[self.kiosk_index].occupied = False
 
-        # print("Customer", self.ID, "Start:" + str(self.timeBeginCheckout) + "End:" + str(self.timeFinished))
         time_in_line = self.timeBeginCheckout - self.timeArrivedAtLine
         service_time = self.timeFinished - self.timeBeginCheckout
         self.Results.write(str(self.ID) + "," + str(self.items) + "," + self.destination + "," + str(self.kiosk_index)
