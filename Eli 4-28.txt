@@ -1,0 +1,8 @@
+The Simulation is done besides these few things:
+
++ Fit data to distributions (items, customer/cashier speeds)
++ Add Random Draws (items, customer/cashier speeds)
+
+- Remove the test-type print statements
+	
+	
